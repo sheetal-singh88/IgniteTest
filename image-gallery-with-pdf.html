@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Gallery - Download as PDF</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .download-section {
+            padding: 30px;
+            text-align: center;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            font-weight: bold;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .intro {
+            margin-bottom: 40px;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .intro h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 2em;
+        }
+
+        .intro p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .gallery-item {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-item-content {
+            padding: 20px;
+        }
+
+        .gallery-item h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .gallery-item p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .features {
+            margin-top: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .features h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .features li {
+            padding: 10px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+
+        .footer {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .loading {
+            display: none;
+            margin-left: 10px;
+        }
+
+        .loading.active {
+            display: inline-block;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .download-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="content-to-pdf">
+        <div class="header">
+            <h1>🖼️ Beautiful Image Gallery</h1>
+            <p>Explore our collection and download as PDF</p>
+        </div>
+
+        <div class="download-section">
+            <button class="download-btn" id="downloadBtn" onclick="downloadPDF()">
+                📥 Download as PDF
+                <span class="loading" id="loading">⏳ Generating...</span>
+            </button>
+        </div>
+
+        <div class="content">
+            <div class="intro">
+                <h2>Welcome to Our Gallery</h2>
+                <p>
+                    This is a demonstration page showcasing how to create an interactive HTML page 
+                    with images that can be downloaded as a PDF document. All images and formatting 
+                    will be preserved in the PDF output.
+                </p>
+                <p>
+                    Click the "Download as PDF" button above to generate a PDF version of this entire 
+                    page, including all images and styling.
+                </p>
+            </div>
+
+            <div class="gallery">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&h=300&fit=crop" alt="Mountain Landscape">
+                    <div class="gallery-item-content">
+                        <h3>Mountain Landscape</h3>
+                        <p>Breathtaking views of majestic mountain peaks covered in snow, showcasing nature's grandeur.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=500&h=300&fit=crop" alt="Beach Paradise">
+                    <div class="gallery-item-content">
+                        <h3>Beach Paradise</h3>
+                        <p>Crystal clear waters and pristine sandy beaches create the perfect tropical getaway.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=500&h=300&fit=crop" alt="Forest Path">
+                    <div class="gallery-item-content">
+                        <h3>Forest Path</h3>
+                        <p>A serene pathway through lush green forests, inviting peaceful walks and reflection.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=500&h=300&fit=crop" alt="Sunset Vista">
+                    <div class="gallery-item-content">
+                        <h3>Sunset Vista</h3>
+                        <p>Golden hour magic as the sun sets over rolling hills, painting the sky in warm hues.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=500&h=300&fit=crop" alt="Autumn Colors">
+                    <div class="gallery-item-content">
+                        <h3>Autumn Colors</h3>
+                        <p>Vibrant fall foliage displaying nature's spectacular color palette in full glory.</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=500&h=300&fit=crop" alt="Winter Wonderland">
+                    <div class="gallery-item-content">
+                        <h3>Winter Wonderland</h3>
+                        <p>Snow-covered landscapes creating a magical winter scene straight from a fairy tale.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features">
+                <h2>Features of This Page</h2>
+                <ul>
+                    <li>Responsive design that works on all devices</li>
+                    <li>High-quality images from Unsplash</li>
+                    <li>One-click PDF download functionality</li>
+                    <li>Images are preserved in the PDF output</li>
+                    <li>Professional styling and layout</li>
+                    <li>Fast PDF generation using modern libraries</li>
+                    <li>No server-side processing required</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 Image Gallery. Created with HTML, CSS, and JavaScript.</p>
+        </div>
+    </div>
+
+    <!-- Include required libraries for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        async function downloadPDF() {
+            const button = document.getElementById('downloadBtn');
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content-to-pdf');
+            
+            // Disable button and show loading
+            button.disabled = true;
+            loading.classList.add('active');
+            
+            try {
+                // Get jsPDF from the UMD bundle
+                const { jsPDF } = window.jspdf;
+                
+                // Create new PDF document
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4',
+                    compress: true
+                });
+
+                // Get the content element
+                const element = content;
+                
+                // Use html2canvas to capture the content
+                const canvas = await html2canvas(element, {
+                    scale: 2, // Higher quality
+                    useCORS: true, // Enable CORS for external images
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: element.scrollWidth,
+                    windowHeight: element.scrollHeight
+                });
+
+                const imgData = canvas.toDataURL('image/jpeg', 0.95);
+                
+                // Calculate dimensions to fit the page
+                const imgWidth = 210; // A4 width in mm
+                const pageHeight = 297; // A4 height in mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+                let position = 0;
+
+                // Add first page
+                pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, '', 'FAST');
+                heightLeft -= pageHeight;
+
+                // Add additional pages if content is longer than one page
+                while (heightLeft > 0) {
+                    position = heightLeft - imgHeight;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight, '', 'FAST');
+                    heightLeft -= pageHeight;
+                }
+
+                // Save the PDF
+                pdf.save('image-gallery.pdf');
+                
+                // Show success message
+                alert('PDF downloaded successfully!');
+                
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Error generating PDF. Please try again.');
+            } finally {
+                // Re-enable button and hide loading
+                button.disabled = false;
+                loading.classList.remove('active');
+            }
+        }
+
+        // Preload images for better PDF generation
+        window.addEventListener('load', function() {
+            const images = document.querySelectorAll('img');
+            let loadedImages = 0;
+            
+            images.forEach(img => {
+                if (img.complete) {
+                    loadedImages++;
+                } else {
+                    img.addEventListener('load', () => {
+                        loadedImages++;
+                        if (loadedImages === images.length) {
+                            console.log('All images loaded successfully');
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
