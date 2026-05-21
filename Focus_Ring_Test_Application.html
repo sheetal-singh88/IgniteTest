@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Ring Validation Test Application</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .section h2 {
+            color: #444;
+            margin-top: 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .section-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .element-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .element-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+
+        /* Standard Single Focus Ring */
+        .standard-focus:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* Double Focus Ring (Concentric) */
+        .double-focus:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Triple Focus Ring (Concentric) */
+        .triple-focus:focus {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.3),
+                0 0 0 6px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Thick Focus Ring */
+        .thick-focus:focus {
+            outline: 4px solid #ff6b6b;
+            outline-offset: 2px;
+        }
+
+        /* Dashed Focus Ring */
+        .dashed-focus:focus {
+            outline: 2px dashed #4ecdc4;
+            outline-offset: 2px;
+        }
+
+        /* Glow Effect Focus */
+        .glow-focus:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.5),
+                        0 0 20px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Inner Focus Ring */
+        .inner-focus:focus {
+            outline: none;
+            box-shadow: inset 0 0 0 3px #667eea;
+        }
+
+        /* Offset Focus Ring */
+        .offset-focus:focus {
+            outline: 2px solid #f39c12;
+            outline-offset: 5px;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #4ecdc4;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-success {
+            background: #51cf66;
+            color: white;
+        }
+
+        /* Input Styles */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        textarea,
+        select {
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            width: 250px;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        /* Checkbox and Radio Styles */
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Link Styles */
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 5px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Custom Component Styles */
+        .custom-component {
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .custom-component:hover {
+            border-color: #667eea;
+        }
+
+        /* Tab Component */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 2px solid #ddd;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 0 5px 5px 5px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Accordion */
+        .accordion-item {
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            padding: 15px;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .accordion-header:hover {
+            background: #e8e8e8;
+        }
+
+        .accordion-content {
+            padding: 15px;
+            display: none;
+            background: white;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .toggle-switch input:focus + .toggle-slider {
+            outline: 2px solid #667eea;
+            outline-offset: 2px;
+        }
+
+        /* Shadow DOM Component */
+        .shadow-host {
+            padding: 20px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        /* Skip Link */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 0 0 5px 0;
+            font-weight: 600;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Focus Trap Demo */
+        .focus-trap {
+            padding: 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: #f0f4ff;
+        }
+
+        /* Disabled State */
+        button:disabled,
+        input:disabled,
+        select:disabled,
+        textarea:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* High Contrast Mode Support */
+        @media (prefers-contrast: high) {
+            *:focus {
+                outline: 3px solid currentColor;
+                outline-offset: 3px;
+            }
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #1976d2;
+        }
+
+        /* Grid Layout for Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="container">
+        <h1>🎯 Focus Ring Validation Test Application</h1>
+        <p class="subtitle">Comprehensive test page for validating visible focus rings during keyboard navigation</p>
+
+        <div class="info-box">
+            <strong>Instructions:</strong> Use <kbd>Tab</kbd> to navigate forward and <kbd>Shift+Tab</kbd> to navigate backward through all focusable elements. Observe the different focus ring styles on each element.
+        </div>
+
+        <main id="main-content">
+            <!-- Section 1: Standard Single Focus Rings -->
+            <section class="section">
+                <h2>1. Standard Single Focus Rings</h2>
+                <p class="section-description">Elements with standard single outline focus indicators</p>
+                
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Primary Button</span>
+                        <button class="btn-primary standard-focus">Primary Action</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Secondary Button</span>
+                        <button class="btn-secondary standard-focus">Secondary Action</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Danger Button</span>
+                        <button class="btn-danger standard-focus">Delete</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Success Button</span>
+                        <button class="btn-success standard-focus">Save</button>
+                    </div>
+                </div>
+
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Text Input</span>
+                        <input type="text" class="standard-focus" placeholder="Enter text">
+                    </div>
+                    <div>
+                        <span class="element-label">Email Input</span>
+                        <input type="email" class="standard-focus" placeholder="email@example.com">
+                    </div>
+                    <div>
+                        <span class="element-label">Password Input</span>
+                        <input type="password" class="standard-focus" placeholder="Password">
+                    </div>
+                </div>
+
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Standard Link</span>
+                        <a href="#" class="standard-focus">Click here</a>
+                    </div>
+                    <div>
+                        <span class="element-label">Select Dropdown</span>
+                        <select class="standard-focus">
+                            <option>Option 1</option>
+                            <option>Option 2</option>
+                            <option>Option 3</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: Double Focus Rings (Concentric) -->
+            <section class="section">
+                <h2>2. Double Focus Rings (Concentric)</h2>
+                <p class="section-description">Elements with two concentric focus rings for enhanced visibility</p>
+                
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Button with Double Ring</span>
+                        <button class="btn-primary double-focus">Double Ring Button</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Input with Double Ring</span>
+                        <input type="text" class="double-focus" placeholder="Double ring input">
+                    </div>
+                    <div>
+                        <span class="element-label">Link with Double Ring</span>
+                        <a href="#" class="double-focus">Double ring link</a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Triple Focus Rings (Concentric) -->
+            <section class="section">
+                <h2>3. Triple Focus Rings (Concentric)</h2>
+                <p class="section-description">Elements with three concentric focus rings for maximum visibility</p>
+                
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Button with Triple Ring</span>
+                        <button class="btn-danger triple-focus">Triple Ring Button</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Input with Triple Ring</span>
+                        <input type="text" class="triple-focus" placeholder="Triple ring input">
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 4: Various Focus Ring Styles -->
+            <section class="section">
+                <h2>4. Various Focus Ring Styles</h2>
+                <p class="section-description">Different focus ring styles: thick, dashed, glow, inner, offset</p>
+                
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Thick Focus Ring</span>
+                        <button class="btn-primary thick-focus">Thick Ring</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Dashed Focus Ring</span>
+                        <button class="btn-secondary dashed-focus">Dashed Ring</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Glow Effect Focus</span>
+                        <button class="btn-danger glow-focus">Glow Effect</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Inner Focus Ring</span>
+                        <button class="btn-success inner-focus">Inner Ring</button>
+                    </div>
+                    <div>
+                        <span class="element-label">Offset Focus Ring</span>
+                        <button class="btn-primary offset-focus">Offset Ring</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Form Elements -->
+            <section class="section">
+                <h2>5. Form Elements</h2>
+                <p class="section-description">Various form inputs with focus rings</p>
+                
+                <div class="form-grid">
+                    <div class="form-field">
+                        <label class="element-label" for="name">Full Name</label>
+                        <input type="text" id="name" class="standard-focus" placeholder="John Doe">
+                    </div>
+                    <div class="form-field">
+                        <label class="element-label" for="email-form">Email Address</label>
+                        <input type="email" id="email-form" class="double-focus" placeholder="john@example.com">
+                    </div>
+                    <div class="form-field">
+                        <label class="element-label" for="phone">Phone Number</label>
+                        <input type="tel" id="phone" class="standard-focus" placeholder="(123) 456-7890">
+                    </div>
+                    <div class="form-field">
+                        <label class="element-label" for="age">Age</label>
+                        <input type="number" id="age" class="standard-focus" placeholder="25">
+                    </div>
+                </div>
+
+                <div class="form-field" style="margin-top: 20px;">
+                    <label class="element-label" for="message">Message</label>
+                    <textarea id="message" class="double-focus" placeholder="Enter your message here..."></textarea>
+                </div>
+
+                <div class="form-field" style="margin-top: 20px;">
+                    <label class="element-label" for="country">Country</label>
+                    <select id="country" class="standard-focus">
+                        <option>United States</option>
+                        <option>Canada</option>
+                        <option>United Kingdom</option>
+                        <option>Australia</option>
+                        <option>India</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Section 6: Checkboxes and Radio Buttons -->
+            <section class="section">
+                <h2>6. Checkboxes and Radio Buttons</h2>
+                <p class="section-description">Selection controls with focus rings</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                    <div>
+                        <span class="element-label">Checkboxes</span>
+                        <div class="checkbox-group">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="check1" class="standard-focus">
+                                <label for="check1">Option 1</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="check2" class="double-focus">
+                                <label for="check2">Option 2 (Double Ring)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="check3" class="standard-focus" checked>
+                                <label for="check3">Option 3 (Checked)</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="check4" class="standard-focus" disabled>
+                                <label for="check4">Option 4 (Disabled)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="element-label">Radio Buttons</span>
+                        <div class="radio-group">
+                            <div class="radio-item">
+                                <input type="radio" id="radio1" name="radio-group" class="standard-focus" checked>
+                                <label for="radio1">Choice A</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="radio2" name="radio-group" class="double-focus">
+                                <label for="radio2">Choice B (Double Ring)</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="radio3" name="radio-group" class="standard-focus">
+                                <label for="radio3">Choice C</label>
+                            </div>
+                            <div class="radio-item">
+                                <input type="radio" id="radio4" name="radio-group" class="standard-focus" disabled>
+                                <label for="radio4">Choice D (Disabled)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 7: Toggle Switches -->
+            <section class="section">
+                <h2>7. Toggle Switches</h2>
+                <p class="section-description">Custom toggle switches with focus rings</p>
+                
+                <div class="element-group">
+                    <div>
+                        <span class="element-label">Toggle 1</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <span class="element-label">Toggle 2 (Checked)</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div>
+                        <span class="element-label">Toggle 3</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 8: Tabs Component -->
+            <section class="section">
+                <h2>8. Tabs Component</h2>
+                <p class="section-description">Tab navigation with focus rings and arrow key support</p>
+                
+                <div class="tabs" role="tablist">
+                    <button class="tab standard-focus active" role="tab" aria-selected="true" data-tab="tab1">Tab 1</button>
+                    <button class="tab double-focus" role="tab" aria-selected="false" data-tab="tab2">Tab 2</button>
+                    <button class="tab standard-focus" role="tab" aria-selected="false" data-tab="tab3">Tab 3</button>
+                </div>
+                <div id="tab1" class="tab-content active" role="tabpanel">
+                    <h3>Tab 1 Content</h3>
+                    <p>This is the content for tab 1. You can tab through the tabs and use arrow keys to navigate.</p>
+                    <button class="btn-primary standard-focus">Action in Tab 1</button>
+                </div>
+                <div id="tab2" class="tab-content" role="tabpanel">
+                    <h3>Tab 2 Content</h3>
+                    <p>This is the content for tab 2.</p>
+                    <input type="text" class="double-focus" placeholder="Input in Tab 2">
+                </div>
+                <div id="tab3" class="tab-content" role="tabpanel">
+                    <h3>Tab 3 Content</h3>
+                    <p>This is the content for tab 3.</p>
+                    <select class="standard-focus">
+                        <option>Select in Tab 3</option>
+                        <option>Option 1</option>
+                        <option>Option 2</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Section 9: Accordion Component -->
+            <section class="section">
+                <h2>9. Accordion Component</h2>
+                <p class="section-description">Expandable accordion with focus rings</p>
+                
+                <div class="accordion-item">
+                    <div class="accordion-header standard-focus" tabindex="0" role="button">
+                        <span>Accordion Item 1</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Content for accordion item 1. This section can be expanded and collapsed.</p>
+                        <button class="btn-primary standard-focus">Button in Accordion</button>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header double-focus" tabindex="0" role="button">
+                        <span>Accordion Item 2 (Double Ring)</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Content for accordion item 2 with double focus ring.</p>
+                        <input type="text" class="standard-focus" placeholder="Input in accordion">
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <div class="accordion-header standard-focus" tabindex="0" role="button">
+                        <span>Accordion Item 3</span>
+                        <span>▼</span>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Content for accordion item 3.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 10: Modal Dialog -->
+            <section class="section">
+                <h2>10. Modal Dialog (Focus Trap)</h2>
+                <p class="section-description">Modal with focus trap - focus cycles within modal</p>
+                
+                <button class="btn-primary standard-focus" id="openModal">Open Modal Dialog</button>
+            </section>
+
+            <!-- Section 11: Custom Components -->
+            <section class="section">
+                <h2>11. Custom Components</h2>
+                <p class="section-description">Custom focusable components with various focus ring styles</p>
+                
+                <div class="element-group">
+                    <div class="custom-component standard-focus" tabindex="0" role="button">
+                        <strong>Custom Component 1</strong>
+                        <p>Standard focus ring</p>
+                    </div>
+                    <div class="custom-component double-focus" tabindex="0" role="button">
+                        <strong>Custom Component 2</strong>
+                        <p>Double focus ring</p>
+                    </div>
+                    <div class="custom-component triple-focus" tabindex="0" role="button">
+                        <strong>Custom Component 3</strong>
+                        <p>Triple focus ring</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 12: Links and Navigation -->
+            <section class="section">
+                <h2>12. Links and Navigation</h2>
+                <p class="section-description">Various link styles with focus rings</p>
+                
+                <div class="element-group">
+                    <a href="#" class="standard-focus">Standard Link</a>
+                    <a href="#" class="double-focus">Double Ring Link</a>
+                    <a href="#" class="thick-focus">Thick Ring Link</a>
+                    <a href="#" class="glow-focus">Glow Effect Link</a>
+                    <a href="#" class="dashed-focus">Dashed Ring Link</a>
+                </div>
+            </section>
+
+            <!-- Section 13: Disabled Elements -->
+            <section class="section">
+                <h2>13. Disabled Elements (Should Not Receive Focus)</h2>
+                <p class="section-description">These elements should be skipped during tab navigation</p>
+                
+                <div class="element-group">
+                    <button class="btn-primary standard-focus" disabled>Disabled Button</button>
+                    <input type="text" class="standard-focus" placeholder="Disabled Input" disabled>
+                    <select class="standard-focus" disabled>
+                        <option>Disabled Select</option>
+                    </select>
+                    <textarea class="standard-focus" placeholder="Disabled Textarea" disabled></textarea>
+                </div>
+            </section>
+
+            <!-- Section 14: Elements with tabindex -->
+            <section class="section">
+                <h2>14. Elements with Custom Tab Index</h2>
+                <p class="section-description">Testing tabindex behavior</p>
+                
+                <div class="element-group">
+                    <div class="custom-component standard-focus" tabindex="0">tabindex="0" (in tab order)</div>
+                    <div class="custom-component double-focus" tabindex="-1" id="programmatic-focus">tabindex="-1" (programmatically focusable)</div>
+                    <button class="btn-primary standard-focus" id="focus-programmatic">Focus Element with tabindex="-1"</button>
+                </div>
+            </section>
+
+            <!-- Section 15: Shadow DOM Component -->
+            <section class="section">
+                <h2>15. Shadow DOM Component</h2>
+                <p class="section-description">Component using Shadow DOM</p>
+                
+                <div class="shadow-host" id="shadow-host">
+                    <!-- Shadow DOM will be attached here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Modal Dialog</h2>
+                <button class="modal-close standard-focus" id="closeModal">Close</button>
+            </div>
+            <div class="focus-trap">
+                <p>This is a modal dialog with focus trap. Tab through the elements - focus will cycle within the modal.</p>
+                <div class="form-field">
+                    <label class="element-label">Name</label>
+                    <input type="text" class="standard-focus" placeholder="Enter name">
+                </div>
+                <div class="form-field">
+                    <label class="element-label">Email</label>
+                    <input type="email" class="double-focus" placeholder="Enter email">
+                </div>
+                <div style="margin-top: 20px;">
+                    <button class="btn-primary standard-focus">Submit</button>
+                    <button class="btn-secondary standard-focus" id="closeModal2">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                
+                tabs.forEach(t => {
+                    t.classList.remove('active');
+                    t.setAttribute('aria-selected', 'false');
+                });
+                tabContents.forEach(tc => tc.classList.remove('active'));
+                
+                tab.classList.add('active');
+                tab.setAttribute('aria-selected', 'true');
+                document.getElementById(targetTab).classList.add('active');
+            });
+
+            // Arrow key navigation for tabs
+            tab.addEventListener('keydown', (e) => {
+                const currentIndex = Array.from(tabs).indexOf(tab);
+                let nextIndex;
+
+                if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    nextIndex = (currentIndex + 1) % tabs.length;
+                    tabs[nextIndex].focus();
+                    tabs[nextIndex].click();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                    tabs[nextIndex].focus();
+                    tabs[nextIndex].click();
+                }
+            });
+        });
+
+        // Accordion functionality
+        const accordionHeaders = document.querySelectorAll('.accordion-header');
+        
+        accordionHeaders.forEach(header => {
+            header.addEventListener('click', () => {
+                const content = header.nextElementSibling;
+                content.classList.toggle('active');
+            });
+
+            header.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    header.click();
+                }
+            });
+        });
+
+        // Modal functionality
+        const modal = document.getElementById('modal');
+        const openModalBtn = document.getElementById('openModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const closeModal2Btn = document.getElementById('closeModal2');
+
+        openModalBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+            // Focus first focusable element in modal
+            const firstFocusable = modal.querySelector('input, button');
+            if (firstFocusable) firstFocusable.focus();
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            openModalBtn.focus();
+        });
+
+        closeModal2Btn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            openModalBtn.focus();
+        });
+
+        // Focus trap in modal
+        modal.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                modal.classList.remove('active');
+                openModalBtn.focus();
+            }
+
+            if (e.key === 'Tab') {
+                const focusableElements = modal.querySelectorAll(
+                    'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                );
+                const firstFocusable = focusableElements[0];
+                const lastFocusable = focusableElements[focusableElements.length - 1];
+
+                if (e.shiftKey) {
+                    if (document.activeElement === firstFocusable) {
+                        e.preventDefault();
+                        lastFocusable.focus();
+                    }
+                } else {
+                    if (document.activeElement === lastFocusable) {
+                        e.preventDefault();
+                        firstFocusable.focus();
+                    }
+                }
+            }
+        });
+
+        // Programmatic focus button
+        const focusProgrammaticBtn = document.getElementById('focus-programmatic');
+        const programmaticElement = document.getElementById('programmatic-focus');
+
+        focusProgrammaticBtn.addEventListener('click', () => {
+            programmaticElement.focus();
+        });
+
+        // Shadow DOM component
+        const shadowHost = document.getElementById('shadow-host');
+        const shadowRoot = shadowHost.attachShadow({ mode: 'open' });
+        
+        shadowRoot.innerHTML = `
+            <style>
+                .shadow-button {
+                    padding: 12px 24px;
+                    background: #667eea;
+                    color: white;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 16px;
+                }
+                .shadow-button:focus {
+                    outline: 2px solid #ff6b6b;
+                    outline-offset: 2px;
+                    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.3);
+                }
+                .shadow-input {
+                    padding: 10px;
+                    border: 2px solid #ddd;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    margin-left: 10px;
+                }
+                .shadow-input:focus {
+                    outline: 2px solid #4ecdc4;
+                    outline-offset: 2px;
+                }
+            </style>
+            <div>
+                <p><strong>Shadow DOM Content:</strong></p>
+                <button class="shadow-button">Button in Shadow DOM</button>
+                <input type="text" class="shadow-input" placeholder="Input in Shadow DOM">
+            </div>
+        `;
+
+        // Prevent default link behavior
+        document.querySelectorAll('a[href="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+            });
+        });
+
+        // Log focus events for debugging
+        document.addEventListener('focusin', (e) => {
+            console.log('Focus on:', e.target);
+        });
+    </script>
+</body>
+</html>
