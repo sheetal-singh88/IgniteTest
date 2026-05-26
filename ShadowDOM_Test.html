@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shadow DOM Test</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      text-align: center;
+      color: #111827;
+      font-size: 28px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 2px dashed #667eea;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #2563eb;
+      margin: 0 0 15px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .section-description {
+      color: #64748b;
+      font-size: 14px;
+      margin-bottom: 20px;
+      font-style: italic;
+    }
+    .demo-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .control-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    label {
+      font-size: 14px;
+      color: #333;
+      font-weight: 600;
+      min-width: 100px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+    button {
+      padding: 12px 24px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    button:focus {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .info-box strong {
+      color: #1976d2;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌓 Shadow DOM Test Application</h1>
+    <p class="subtitle">Testing Shadow DOM elements with encapsulated styles</p>
+
+    <div class="info-box">
+      <strong>About Shadow DOM:</strong> Shadow DOM provides encapsulation for DOM and CSS, allowing components to have their own isolated DOM tree and styles that don't affect the rest of the page.
+    </div>
+
+    <!-- Section 1: Shadow DOM Form -->
+    <div class="section">
+      <h2 class="section-title">Shadow DOM Form Component</h2>
+      <p class="section-description">Form elements inside Shadow DOM with custom styling</p>
+      <shadow-form-component></shadow-form-component>
+    </div>
+
+    <!-- Section 2: Shadow DOM Button -->
+    <div class="section">
+      <h2 class="section-title">Shadow DOM Button Component</h2>
+      <p class="section-description">Interactive buttons with encapsulated styles</p>
+      <shadow-button-component></shadow-button-component>
+    </div>
+
+    <!-- Section 3: Shadow DOM Message -->
+    <div class="section">
+      <h2 class="section-title">Shadow DOM Message Component</h2>
+      <p class="section-description">Message display component with dynamic content</p>
+      <div class="demo-controls">
+        <div class="control-group">
+          <label>Message:</label>
+          <input type="text" id="messageInput" placeholder="Enter a message">
+        </div>
+        <div class="control-group">
+          <button onclick="showSuccessMessage()">Show Success</button>
+          <button onclick="showErrorMessage()">Show Error</button>
+        </div>
+      </div>
+      <shadow-message id="messageBox"></shadow-message>
+    </div>
+
+    <!-- Section 4: Shadow DOM Card -->
+    <div class="section">
+      <h2 class="section-title">Shadow DOM Card Component</h2>
+      <p class="section-description">Card component with slot content</p>
+      <shadow-card-component></shadow-card-component>
+    </div>
+  </div>
+
+  <script>
+    // Shadow Message Component
+    class ShadowMessage extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+      }
+
+      connectedCallback() {
+        this.shadowRoot.innerHTML = `
+          <style>
+            .message {
+              margin-top: 16px;
+              padding: 12px 16px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              display: none;
+              animation: slideIn 0.3s ease;
+            }
+            @keyframes slideIn {
+              from {
+                opacity: 0;
+                transform: translateY(-10px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            .success {
+              background: #dcfce7;
+              color: #166534;
+              border: 2px solid #86efac;
+            }
+            .error {
+              background: #fee2e2;
+              color: #991b1b;
+              border: 2px solid #fca5a5;
+            }
+            .info {
+              background: #dbeafe;
+              color: #1e40af;
+              border: 2px solid #93c5fd;
+            }
+          </style>
+          <div class="message"></div>
+        `;
+      }
+
+      showMessage(text, type = 'info') {
+        const box = this.shadowRoot.querySelector('.message');
+        box.className = `message ${type}`;
+        box.textContent = text;
+        box.style.display = 'block';
+      }
+
+      hideMessage() {
+        const box = this.shadowRoot.querySelector('.message');
+        box.style.display = 'none';
+      }
+    }
+
+    // Shadow Form Component
+    class ShadowFormComponent extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+      }
+
+      connectedCallback() {
+        this.shadowRoot.innerHTML = `
+          <style>
+            .form-container {
+              display: flex;
+              flex-direction: column;
+              gap: 15px;
+            }
+            .field {
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            }
+            label {
+              font-size: 14px;
+              color: #333;
+              font-weight: 600;
+            }
+            input {
+              padding: 10px 12px;
+              border: 2px solid #cbd5e1;
+              border-radius: 8px;
+              font-size: 14px;
+              outline: none;
+              transition: all 0.3s ease;
+            }
+            input:focus {
+              border-color: #8b5cf6;
+              box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+            }
+            input::placeholder {
+              color: #94a3b8;
+            }
+          </style>
+          <div class="form-container">
+            <div class="field">
+              <label>Username</label>
+              <input type="text" placeholder="Enter username" />
+            </div>
+            <div class="field">
+              <label>Email</label>
+              <input type="email" placeholder="Enter email" />
+            </div>
+            <div class="field">
+              <label>Password</label>
+              <input type="password" placeholder="Enter password" />
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Shadow Button Component
+    class ShadowButtonComponent extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+      }
+
+      connectedCallback() {
+        this.shadowRoot.innerHTML = `
+          <style>
+            .button-group {
+              display: flex;
+              gap: 12px;
+              flex-wrap: wrap;
+            }
+            button {
+              padding: 12px 24px;
+              border: none;
+              border-radius: 8px;
+              font-size: 15px;
+              font-weight: 600;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            }
+            .primary {
+              background: #8b5cf6;
+              color: white;
+            }
+            .primary:hover {
+              background: #7c3aed;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+            }
+            .primary:focus {
+              outline: 3px solid #8b5cf6;
+              outline-offset: 2px;
+            }
+            .secondary {
+              background: #10b981;
+              color: white;
+            }
+            .secondary:hover {
+              background: #059669;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            }
+            .secondary:focus {
+              outline: 3px solid #10b981;
+              outline-offset: 2px;
+            }
+            .danger {
+              background: #ef4444;
+              color: white;
+            }
+            .danger:hover {
+              background: #dc2626;
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+            }
+            .danger:focus {
+              outline: 3px solid #ef4444;
+              outline-offset: 2px;
+            }
+          </style>
+          <div class="button-group">
+            <button class="primary">Primary Button</button>
+            <button class="secondary">Success Button</button>
+            <button class="danger">Danger Button</button>
+          </div>
+        `;
+      }
+    }
+
+    // Shadow Card Component
+    class ShadowCardComponent extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+      }
+
+      connectedCallback() {
+        this.shadowRoot.innerHTML = `
+          <style>
+            .card {
+              background: white;
+              border: 2px solid #e5e7eb;
+              border-radius: 12px;
+              padding: 20px;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .card-title {
+              font-size: 18px;
+              font-weight: 700;
+              color: #111827;
+              margin: 0 0 10px 0;
+            }
+            .card-content {
+              color: #6b7280;
+              font-size: 14px;
+              line-height: 1.6;
+              margin-bottom: 15px;
+            }
+            .card-button {
+              padding: 10px 20px;
+              background: #f59e0b;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              font-size: 14px;
+              font-weight: 600;
+              cursor: pointer;
+            }
+            .card-button:hover {
+              background: #d97706;
+            }
+            .card-button:focus {
+              outline: 2px solid #f59e0b;
+              outline-offset: 2px;
+            }
+          </style>
+          <div class="card">
+            <h3 class="card-title">Shadow DOM Card</h3>
+            <p class="card-content">
+              This is a card component rendered inside Shadow DOM. 
+              It has its own encapsulated styles that don't leak to the parent document.
+            </p>
+            <button class="card-button">Learn More</button>
+          </div>
+        `;
+      }
+    }
+
+    // Register custom elements
+    customElements.define('shadow-message', ShadowMessage);
+    customElements.define('shadow-form-component', ShadowFormComponent);
+    customElements.define('shadow-button-component', ShadowButtonComponent);
+    customElements.define('shadow-card-component', ShadowCardComponent);
+
+    // Helper functions for message demo
+    function showSuccessMessage() {
+      const messageBox = document.getElementById('messageBox');
+      const input = document.getElementById('messageInput');
+      const message = input.value || 'Operation completed successfully!';
+      messageBox.showMessage(message, 'success');
+    }
+
+    function showErrorMessage() {
+      const messageBox = document.getElementById('messageBox');
+      const input = document.getElementById('messageInput');
+      const message = input.value || 'An error occurred!';
+      messageBox.showMessage(message, 'error');
+    }
+  </script>
+</body>
+</html>

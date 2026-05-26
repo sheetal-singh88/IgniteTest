@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Macrocomponent Only Test - No Frames, No Shadow DOM</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <login-macrocomponent></login-macrocomponent>
+
+  <script>
+    class LoginMacroComponent extends HTMLElement {
+      constructor() {
+        super();
+        // NOT using Shadow DOM - attaching directly to the element
+      }
+
+      connectedCallback() {
+        // Render directly to the element (no Shadow DOM, no iframes)
+        this.innerHTML = `
+          <style>
+            .wrapper {
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 24px;
+              box-sizing: border-box;
+            }
+            .card {
+              width: 100%;
+              max-width: 520px;
+              background: #ffffff;
+              border-radius: 16px;
+              padding: 28px;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+              box-sizing: border-box;
+            }
+            h2 {
+              margin: 0 0 20px 0;
+              text-align: center;
+              color: #111827;
+            }
+            .subtitle {
+              text-align: center;
+              color: #64748b;
+              font-size: 14px;
+              margin-bottom: 30px;
+            }
+            .form-container {
+              display: flex;
+              flex-direction: column;
+              gap: 16px;
+            }
+            .field {
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            }
+            label {
+              font-size: 14px;
+              color: #333;
+              font-weight: 600;
+            }
+            input {
+              padding: 10px 12px;
+              border: 1px solid #cbd5e1;
+              border-radius: 8px;
+              font-size: 14px;
+              outline: none;
+              width: 100%;
+              box-sizing: border-box;
+            }
+            input:focus {
+              border-color: #2563eb;
+              box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+            }
+            button {
+              width: 100%;
+              padding: 12px;
+              background: #2563eb;
+              color: #fff;
+              border: none;
+              border-radius: 8px;
+              font-size: 15px;
+              font-weight: 600;
+              cursor: pointer;
+              margin-top: 8px;
+            }
+            button:hover {
+              background: #1d4ed8;
+            }
+            button:focus {
+              outline: 2px solid #2563eb;
+              outline-offset: 2px;
+            }
+            .message-container {
+              margin-top: 16px;
+              padding: 10px 12px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              display: none;
+            }
+            .message-container.success {
+              background: #dcfce7;
+              color: #166534;
+              border: 1px solid #86efac;
+              display: block;
+            }
+            .message-container.error {
+              background: #fee2e2;
+              color: #991b1b;
+              border: 1px solid #fca5a5;
+              display: block;
+            }
+            .info-box {
+              background: #e0e7ff;
+              border-left: 4px solid #6366f1;
+              padding: 12px;
+              margin-bottom: 20px;
+              border-radius: 4px;
+              font-size: 13px;
+              color: #4338ca;
+            }
+            .info-box strong {
+              display: block;
+              margin-bottom: 4px;
+            }
+          </style>
+          <div class="wrapper">
+            <div class="card">
+              <h2>Macrocomponent Only Test</h2>
+              <p class="subtitle">Pure Macrocomponent - No Shadow DOM, No iFrames</p>
+              
+              <div class="info-box">
+                <strong>ℹ️ About this component:</strong>
+                This is a custom web component (Macrocomponent) that renders directly to the DOM without using Shadow DOM or iframes. All elements are part of the regular DOM tree.
+              </div>
+
+              <div class="form-container">
+                <div class="field">
+                  <label for="username">Username</label>
+                  <input type="text" id="username" name="username" placeholder="Enter username" />
+                </div>
+                <div class="field">
+                  <label for="password">Password</label>
+                  <input type="password" id="password" name="password" placeholder="Enter password" />
+                </div>
+                <button type="button" id="loginBtn">Login</button>
+              </div>
+
+              <div class="message-container" id="messageBox"></div>
+            </div>
+          </div>
+        `;
+
+        // Setup event listeners
+        const loginBtn = this.querySelector('#loginBtn');
+        const usernameInput = this.querySelector('#username');
+        const passwordInput = this.querySelector('#password');
+        const messageEl = this.querySelector('#messageBox');
+
+        loginBtn.addEventListener('click', () => {
+          const username = usernameInput.value;
+          const password = passwordInput.value;
+
+          if (username === 'admin' && password === 'admin123') {
+            messageEl.textContent = '✓ Login Successful!';
+            messageEl.className = 'message-container success';
+          } else if (username === '' || password === '') {
+            messageEl.textContent = '⚠ Please fill in all fields!';
+            messageEl.className = 'message-container error';
+          } else {
+            messageEl.textContent = '✗ Invalid credentials! Try admin/admin123';
+            messageEl.className = 'message-container error';
+          }
+        });
+
+        // Allow Enter key to submit
+        [usernameInput, passwordInput].forEach(input => {
+          input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+              loginBtn.click();
+            }
+          });
+        });
+      }
+    }
+
+    // Register the custom element
+    customElements.define('login-macrocomponent', LoginMacroComponent);
+  </script>
+</body>
+</html>
