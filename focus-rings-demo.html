@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Rings Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .elements-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .element-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .element-label {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #555;
+        }
+
+        /* Base button style */
+        .focus-element {
+            padding: 20px 40px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            outline: none;
+        }
+
+        .focus-element:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .focus-element:active {
+            transform: translateY(0);
+        }
+
+        /* Single Focus Ring */
+        .focus-ring-1:focus {
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Double Focus Ring */
+        .focus-ring-2:focus {
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.5),
+                0 0 0 8px rgba(118, 75, 162, 0.3);
+        }
+
+        /* Triple Focus Ring */
+        .focus-ring-3:focus {
+            box-shadow: 
+                0 0 0 4px rgba(102, 126, 234, 0.5),
+                0 0 0 8px rgba(118, 75, 162, 0.3),
+                0 0 0 12px rgba(255, 107, 107, 0.2);
+        }
+
+        /* Message Display Area */
+        .message-container {
+            min-height: 80px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .message-container.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            animation: pulse 0.5s ease;
+        }
+
+        .message {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #666;
+            text-align: center;
+        }
+
+        .message-container.active .message {
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
+        /* Info Section */
+        .info-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-section h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .info-section li {
+            padding: 8px 0;
+            color: #555;
+        }
+
+        .info-section li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .focus-element {
+                padding: 15px 30px;
+                font-size: 1em;
+            }
+
+            .message {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Focus Rings Demo</h1>
+        
+        <div class="elements-container">
+            <div class="element-wrapper">
+                <span class="element-label">Single Focus Ring</span>
+                <button class="focus-element focus-ring-1" data-ring="1">
+                    Click Me - 1 Ring
+                </button>
+            </div>
+
+            <div class="element-wrapper">
+                <span class="element-label">Double Focus Ring</span>
+                <button class="focus-element focus-ring-2" data-ring="2">
+                    Click Me - 2 Rings
+                </button>
+            </div>
+
+            <div class="element-wrapper">
+                <span class="element-label">Triple Focus Ring</span>
+                <button class="focus-element focus-ring-3" data-ring="3">
+                    Click Me - 3 Rings
+                </button>
+            </div>
+        </div>
+
+        <div class="message-container" id="messageContainer">
+            <p class="message" id="message">Click any button to see the message!</p>
+        </div>
+
+        <div class="info-section">
+            <h3>How to Use:</h3>
+            <ul>
+                <li>Click any button to see which element was clicked</li>
+                <li>Use Tab key to navigate between buttons and see focus rings</li>
+                <li>Each button has a different number of focus rings</li>
+                <li>Press Enter or Space when focused to trigger the click</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Get all focus elements
+        const focusElements = document.querySelectorAll('.focus-element');
+        const messageContainer = document.getElementById('messageContainer');
+        const messageElement = document.getElementById('message');
+
+        // Add click event listeners to all elements
+        focusElements.forEach(element => {
+            element.addEventListener('click', function() {
+                const ringCount = this.getAttribute('data-ring');
+                const ringText = ringCount === '1' ? 'ring' : 'rings';
+                
+                // Update message
+                messageElement.textContent = `🎉 Element with ${ringCount} ${ringText} is clicked!`;
+                
+                // Add active class for animation
+                messageContainer.classList.add('active');
+                
+                // Remove active class after animation
+                setTimeout(() => {
+                    messageContainer.classList.remove('active');
+                }, 500);
+                
+                // Log to console
+                console.log(`Button with ${ringCount} focus ${ringText} was clicked`);
+            });
+
+            // Add keyboard support
+            element.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.click();
+                }
+            });
+        });
+
+        // Add focus event listeners for additional feedback
+        focusElements.forEach(element => {
+            element.addEventListener('focus', function() {
+                const ringCount = this.getAttribute('data-ring');
+                console.log(`Element with ${ringCount} focus ring(s) is now focused`);
+            });
+        });
+
+        // Welcome message
+        console.log('Focus Rings Demo loaded successfully!');
+        console.log('Try clicking the buttons or using Tab to navigate and see the focus rings.');
+    </script>
+</body>
+</html>
