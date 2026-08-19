@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>shadowhas – Shadow DOM Test Page</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 14px;
+         background: #f7f8fa; color: #1f2328; line-height: 1.6; padding: 24px; }
+  h1  { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  h2  { font-size: 13px; font-weight: 600; color: #57606a; text-transform: uppercase;
+        letter-spacing: .05em; margin: 24px 0 10px; }
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 24px; }
+
+  /* ── card grid ── */
+  .card-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .card     { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+              padding: 16px 20px; min-width: 200px; flex: 1; }
+  .card h3  { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .card p   { font-size: 13px; color: #57606a; }
+  .badge    { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px;
+              border-radius: 12px; margin-top: 8px; }
+  .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+  .badge-green  { background: #d1fae5; color: #065f46; }
+  .badge-orange { background: #fed7aa; color: #c2410c; }
+
+  /* ── test controls ── */
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  button { padding: 7px 16px; border-radius: 6px; border: 1px solid #d1d5db;
+           background: #fff; font-size: 13px; cursor: pointer; font-weight: 500; }
+  button:hover { background: #f3f4f6; }
+  button.primary { background: #3b82d4; color: #fff; border-color: #3b82d4; }
+  button.primary:hover { background: #2563eb; }
+
+  /* ── result panel ── */
+  #results { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+             padding: 16px; margin-top: 16px; }
+  .result-row { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0;
+                border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+  .result-row:last-child { border-bottom: none; }
+  .icon  { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+  .pass  { color: #059669; }
+  .fail  { color: #dc2626; }
+  .label { font-weight: 500; flex: 1; }
+  .detail { color: #57606a; font-size: 12px; }
+  #summary { font-weight: 600; padding: 10px 0 0; }
+
+  /* ── locator display ── */
+  code { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 4px;
+         padding: 1px 5px; font-size: 12px; font-family: "Cascadia Code","Fira Mono",monospace; }
+  pre  { background: #f7f8fa; border: 1px solid #e5e7eb; border-radius: 6px;
+         padding: 12px; font-size: 12px; font-family: monospace; overflow-x: auto;
+         margin-bottom: 12px; white-space: pre-wrap; }
+</style>
+</head>
+<body>
+
+<h1>shadowhas — Shadow DOM Test Page</h1>
+<p class="subtitle">
+  Validates that the <code>shadow-has(inner-selector)</code> pseudo-filter correctly identifies
+  a shadow host based on content inside its shadow root, without positional indexes.
+</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     SHADOW DOM STRUCTURE UNDER TEST
+     dtv-uxe-config
+       └─ shadow-root
+            ├─ dtv-signature-pkgcard  (ENTERTAINMENT — aria-label on h3)
+            │    └─ shadow-root
+            │         ├─ h3[aria-label='ENTERTAINMENT']
+            │         └─ dtv-button
+            │              └─ shadow-root
+            │                   └─ button[aria-label='Switch']
+            ├─ dtv-signature-pkgcard  (SPORTS)
+            │    └─ shadow-root
+            │         ├─ h3[aria-label='SPORTS']
+            │         └─ dtv-button
+            │              └─ shadow-root
+            │                   └─ button[aria-label='Switch']
+            └─ dtv-signature-pkgcard  (MOVIES)
+                 └─ shadow-root
+                      ├─ h3[aria-label='MOVIES']
+                      └─ dtv-button
+                           └─ shadow-root
+                                └─ button[aria-label='Switch']
+     ═══════════════════════════════════════════════════════ -->
+
+<h2>Component under test</h2>
+<div class="card-row" id="host-area">
+  <!-- dtv-uxe-config is registered below as a custom element -->
+  <dtv-uxe-config></dtv-uxe-config>
+</div>
+
+<h2>Test locators</h2>
+<pre id="locator-display">Loading locators...</pre>
+
+<h2>Run tests</h2>
+<div class="controls">
+  <button class="primary" onclick="runAll()">▶ Run all tests</button>
+  <button onclick="clearResults()">✕ Clear</button>
+</div>
+
+<div id="results">
+  <div style="color:#57606a;font-size:13px;">Click "Run all tests" to start.</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     CUSTOM ELEMENTS DEFINITION
+     ══════════════════════════════════════════ -->
+<script>
+
+/* ── dtv-button ──────────────────────────────── */
+class DtvButton extends HTMLElement {
+  constructor() {
+    super();
+    const sr = this.attachShadow({ mode: 'open' });
+    const label = this.getAttribute('aria-label') || 'Switch';
+    sr.innerHTML = `<button aria-label="${label}" style="
+      padding:6px 14px;border-radius:5px;border:1px solid #3b82d4;
+      background:#3b82d4;color:#fff;cursor:pointer;font-size:12px;font-weight:600;">
+      ${label}
+    </button>`;
+  }
+}
+customElements.define('dtv-button', DtvButton);
+
+/* ── dtv-signature-pkgcard ───────────────────── */
+class DtvSignaturePkgcard extends HTMLElement {
+  constructor() {
+    super();
+    const sr = this.attachShadow({ mode: 'open' });
+    const pkg  = this.getAttribute('package') || 'PACKAGE';
+    const desc = this.getAttribute('desc')    || 'Package description.';
+    const color = { ENTERTAINMENT:'#dbeafe', SPORTS:'#d1fae5', MOVIES:'#fed7aa' }[pkg] || '#f3f4f6';
+    sr.innerHTML = `
+      <div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px;background:${color};min-width:180px;">
+        <h3 aria-label="${pkg}" style="font-size:13px;font-weight:700;margin-bottom:6px;">${pkg}</h3>
+        <p style="font-size:12px;color:#57606a;margin-bottom:10px;">${desc}</p>
+        <dtv-button aria-label="Switch"></dtv-button>
+      </div>`;
+    // dtv-button inside shadow root — needs to be defined before innerHTML sets it,
+    // but custom elements upgrade asynchronously, so we wait one tick
+  }
+}
+customElements.define('dtv-signature-pkgcard', DtvSignaturePkgcard);
+
+/* ── dtv-uxe-config ──────────────────────────── */
+class DtvUxeConfig extends HTMLElement {
+  constructor() {
+    super();
+    const sr = this.attachShadow({ mode: 'open' });
+    sr.innerHTML = `
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <dtv-signature-pkgcard package="ENTERTAINMENT" desc="Movies, shows &amp; more."></dtv-signature-pkgcard>
+        <dtv-signature-pkgcard package="SPORTS"        desc="Live games &amp; highlights."></dtv-signature-pkgcard>
+        <dtv-signature-pkgcard package="MOVIES"        desc="Blockbusters on demand."></dtv-signature-pkgcard>
+      </div>`;
+  }
+}
+customElements.define('dtv-uxe-config', DtvUxeConfig);
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SHADOW-HAS RESOLVER  (mirrors ShadowDOMUtil.resolveSegmentWithShadowHas)
+   ═══════════════════════════════════════════════════════════════════════ */
+const SHADOW_SEPARATOR = ' >>> ';
+const SHADOW_HAS_FILTER = 'shadow-has(';
+
+/**
+ * Parse a segment that may contain shadow-has(...).
+ * Returns { outerSelector, innerSelector } or null if no filter present.
+ */
+function parseShadowHasSegment(segment) {
+  var idx = segment.indexOf(SHADOW_HAS_FILTER);
+  if (idx === -1) return null;
+  var outerSelector = segment.substring(0, idx).replace(/\[$/, '').trim();
+  var innerStart = idx + SHADOW_HAS_FILTER.length;
+  var depth = 1, pos = innerStart;
+  while (pos < segment.length && depth > 0) {
+    var c = segment.charAt(pos);
+    if (c === '(') depth++;
+    else if (c === ')') depth--;
+    if (depth > 0) pos++;
+    else break;
+  }
+  var innerSelector = segment.substring(innerStart, pos).trim();
+  return { outerSelector: outerSelector, innerSelector: innerSelector };
+}
+
+/**
+ * Traverse a shadowhas: locator string and return the target WebElement (DOM node).
+ * Returns null if not found.
+ */
+function resolveShadowHas(locatorValue) {
+  var parts = locatorValue.split(SHADOW_SEPARATOR);
+  if (parts.length < 2) return null;
+
+  var context = document; // start at document root
+
+  for (var i = 0; i < parts.length - 1; i++) {
+    var segment = parts[i].trim();
+    var parsed  = parseShadowHasSegment(segment);
+
+    if (parsed) {
+      // Find all candidates for outerSelector in current context
+      var candidates = context.querySelectorAll(parsed.outerSelector);
+      var matched = null;
+      for (var c = 0; c < candidates.length; c++) {
+        var sr = candidates[c].shadowRoot;
+        if (sr && sr.querySelector(parsed.innerSelector) !== null) {
+          matched = candidates[c];
+          break;
+        }
+      }
+      if (!matched || !matched.shadowRoot) return null;
+      context = matched.shadowRoot;
+    } else {
+      // Plain CSS segment
+      var host = context.querySelector(segment);
+      if (!host || !host.shadowRoot) return null;
+      context = host.shadowRoot;
+    }
+  }
+
+  var finalSelector = parts[parts.length - 1].trim();
+  return context.querySelector(finalSelector);
+}
+
+/* ═══════════════════════════════════════════════════════
+   TEST DEFINITIONS
+   ═══════════════════════════════════════════════════════ */
+var LOCATORS = {
+  // ── shadowhas: locators ─────────────────────────────────────────────
+  'ENTERTAINMENT Switch (shadow-has aria-label)':
+    "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> dtv-button >>> button[aria-label='Switch']",
+
+  'SPORTS Switch (shadow-has aria-label)':
+    "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='SPORTS'])] >>> dtv-button >>> button[aria-label='Switch']",
+
+  'MOVIES Switch (shadow-has aria-label)':
+    "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='MOVIES'])] >>> dtv-button >>> button[aria-label='Switch']",
+
+  'ENTERTAINMENT heading (shadow-has, stop at h3)':
+    "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> h3[aria-label='ENTERTAINMENT']",
+
+  // ── negative test — should NOT find anything ─────────────────────────
+  'UNKNOWN package (shadow-has — expect NOT FOUND)':
+    "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='UNKNOWN'])] >>> dtv-button >>> button[aria-label='Switch']",
+
+  // ── plain shadowcss baseline (no shadow-has) — positional ────────────
+  'Positional :nth-of-type(1) Switch (baseline)':
+    null, // handled separately via positional
+
+  // ── uniqueness check — must return exactly 1 element ─────────────────
+  'All Switch buttons exist (3 total)':
+    null  // handled separately
+};
+
+var TESTS = [
+  {
+    name: 'ENTERTAINMENT Switch — shadow-has finds correct card',
+    locator: "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> dtv-button >>> button[aria-label='Switch']",
+    expectFound: true,
+    expectTag: 'BUTTON',
+    expectAriaLabel: 'Switch',
+    desc: 'Resolves card by inner aria-label, not by index'
+  },
+  {
+    name: 'SPORTS Switch — shadow-has finds correct card',
+    locator: "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='SPORTS'])] >>> dtv-button >>> button[aria-label='Switch']",
+    expectFound: true,
+    expectTag: 'BUTTON',
+    expectAriaLabel: 'Switch',
+    desc: 'Correct card identified even as second element'
+  },
+  {
+    name: 'MOVIES Switch — shadow-has finds correct card',
+    locator: "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='MOVIES'])] >>> dtv-button >>> button[aria-label='Switch']",
+    expectFound: true,
+    expectTag: 'BUTTON',
+    expectAriaLabel: 'Switch',
+    desc: 'Correct card identified as third element'
+  },
+  {
+    name: 'ENTERTAINMENT heading — stops traversal at h3',
+    locator: "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> h3[aria-label='ENTERTAINMENT']",
+    expectFound: true,
+    expectTag: 'H3',
+    expectAriaLabel: 'ENTERTAINMENT',
+    desc: 'Final selector targets h3, not a button'
+  },
+  {
+    name: 'UNKNOWN package — shadow-has returns null',
+    locator: "dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='UNKNOWN'])] >>> dtv-button >>> button[aria-label='Switch']",
+    expectFound: false,
+    desc: 'No card has UNKNOWN in its shadow root — must return null'
+  },
+  {
+    name: 'Each card is distinct — shadow-has never returns same element for different labels',
+    locator: null, // multi-resolve test
+    expectFound: true,
+    desc: 'All three cards resolve to different DOM nodes',
+    multiTest: function() {
+      var e  = resolveShadowHas("dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> dtv-button >>> button[aria-label='Switch']");
+      var sp = resolveShadowHas("dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='SPORTS'])] >>> dtv-button >>> button[aria-label='Switch']");
+      var m  = resolveShadowHas("dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='MOVIES'])] >>> dtv-button >>> button[aria-label='Switch']");
+      return e && sp && m && e !== sp && sp !== m && e !== m;
+    }
+  },
+  {
+    name: 'Plain CSS traversal still works (no shadow-has)',
+    locator: 'dtv-uxe-config >>> dtv-signature-pkgcard >>> h3',
+    expectFound: true,
+    expectTag: 'H3',
+    desc: 'shadowcss-style plain segments are unaffected'
+  }
+];
+
+/* ═══════════════════════════════════════════════════════
+   TEST RUNNER
+   ═══════════════════════════════════════════════════════ */
+function runAll() {
+  // Wait for custom elements to fully upgrade
+  Promise.allSettled(
+    ['dtv-uxe-config','dtv-signature-pkgcard','dtv-button']
+      .map(function(t){ return customElements.whenDefined(t); })
+  ).then(function() {
+    // Extra tick so shadow roots finish rendering
+    requestAnimationFrame(function() { executeTests(); });
+  });
+}
+
+function executeTests() {
+  var container = document.getElementById('results');
+  container.innerHTML = '';
+  var pass = 0, fail = 0;
+
+  TESTS.forEach(function(t) {
+    var ok, element, detail;
+
+    if (t.multiTest) {
+      ok     = t.multiTest();
+      detail = ok ? 'All three nodes are distinct DOM elements' : 'One or more nodes are identical or null';
+    } else {
+      element = resolveShadowHas(t.locator);
+
+      if (!t.expectFound) {
+        ok     = (element === null);
+        detail = ok ? 'Correctly returned null' : 'Expected null but found: ' + (element ? element.tagName : '?');
+      } else {
+        ok = (element !== null);
+        if (ok && t.expectTag)      ok = ok && element.tagName === t.expectTag;
+        if (ok && t.expectAriaLabel) ok = ok && element.getAttribute('aria-label') === t.expectAriaLabel;
+        detail = element
+          ? '<' + element.tagName.toLowerCase() + '> aria-label="' + (element.getAttribute('aria-label') || '') + '"'
+          : 'null — element not found';
+      }
+    }
+
+    if (ok) pass++; else fail++;
+
+    var row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML =
+      '<span class="icon ' + (ok ? 'pass' : 'fail') + '">' + (ok ? '✓' : '✗') + '</span>' +
+      '<span class="label">' + t.name + '<br><span class="detail">' + t.desc + '</span></span>' +
+      '<span class="detail">' + detail + '</span>';
+    container.appendChild(row);
+  });
+
+  var summary = document.createElement('div');
+  summary.id = 'summary';
+  var total = pass + fail;
+  summary.style.color = fail === 0 ? '#059669' : '#dc2626';
+  summary.textContent = pass + ' / ' + total + ' passed' + (fail > 0 ? ' — ' + fail + ' failed' : ' — all tests pass ✓');
+  container.appendChild(summary);
+}
+
+function clearResults() {
+  document.getElementById('results').innerHTML =
+    '<div style="color:#57606a;font-size:13px;">Click "Run all tests" to start.</div>';
+}
+
+/* ═══════════════════════════════════════════════════════
+   DISPLAY LOCATORS
+   ═══════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', function() {
+  var lines = [
+    '# shadowhas: locators under test',
+    '',
+    '# ENTERTAINMENT card',
+    "shadowhas:dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> dtv-button >>> button[aria-label='Switch']",
+    '',
+    '# SPORTS card',
+    "shadowhas:dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='SPORTS'])] >>> dtv-button >>> button[aria-label='Switch']",
+    '',
+    '# MOVIES card',
+    "shadowhas:dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='MOVIES'])] >>> dtv-button >>> button[aria-label='Switch']",
+    '',
+    '# Stop at heading (no button)',
+    "shadowhas:dtv-uxe-config >>> dtv-signature-pkgcard[shadow-has(h3[aria-label='ENTERTAINMENT'])] >>> h3[aria-label='ENTERTAINMENT']",
+  ];
+  document.getElementById('locator-display').textContent = lines.join('\n');
+});
+</script>
+
+</body>
+</html>
